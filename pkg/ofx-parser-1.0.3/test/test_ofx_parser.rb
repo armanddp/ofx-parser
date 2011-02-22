@@ -14,7 +14,7 @@ class OfxParserTest < Test::Unit::TestCase
     ofx = File.read(fixtures_dir + "/#{fn}")
     ofx.gsub!(/\r?\n/,"\r\n") # change line endings to \r\n
 
-    OFX_FILES[fn.scan(/^[^.]*/).to_s.to_sym] = ofx
+    OFX_FILES[fn.scan(/^[^.]*/)[0].to_s.to_sym] = ofx
   end
 
   def setup
@@ -74,7 +74,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal '033000033', acct.routing_number
     assert_equal :CHECKING, acct.type
     assert_equal '1234.09', acct.balance
-    assert_equal 123409, acct.balance_in_pennies
     assert_equal DateTime.civil(2007,6,23,14,26,35,Rational(-5, 24)), acct.balance_date
     assert_equal '9C24229A0077EAA50000011353C9E00743FC', acct.transaction_uid
 
@@ -91,7 +90,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:PAYMENT], transactions[0].type_desc
     assert_equal DateTime.civil(2007,6,6,12,0,0), transactions[0].date
     assert_equal '-11.11', transactions[0].amount
-    assert_equal -1111, transactions[0].amount_in_pennies
     assert_equal '11111111 22', transactions[0].fit_id
     assert_equal nil, transactions[0].check_number
     assert_equal nil, transactions[0].sic
@@ -103,7 +101,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:CHECK], transactions[1].type_desc
     assert_equal DateTime.civil(2007,6,7,12,0,0), transactions[1].date
     assert_equal '-111.11', transactions[1].amount
-    assert_equal -11111, transactions[1].amount_in_pennies
     assert_equal '22222A', transactions[1].fit_id
     assert_equal '0000009611', transactions[1].check_number
     assert_equal nil, transactions[1].sic
@@ -115,7 +112,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:DIRECTDEP], transactions[2].type_desc
     assert_equal DateTime.civil(2007,6,14,12,0,0), transactions[2].date
     assert_equal '1111.11', transactions[2].amount
-    assert_equal 111111, transactions[2].amount_in_pennies
     assert_equal 'X34AE33', transactions[2].fit_id
     assert_equal nil, transactions[2].check_number
     assert_equal nil, transactions[2].sic
@@ -127,7 +123,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:CREDIT], transactions[3].type_desc
     assert_equal DateTime.civil(2007,6,19,12,0,0), transactions[3].date
     assert_equal '11.11', transactions[3].amount
-    assert_equal 1111, transactions[3].amount_in_pennies
     assert_equal '8 8 9089743', transactions[3].fit_id
     assert_equal nil, transactions[3].check_number
     assert_equal nil, transactions[3].sic
@@ -145,10 +140,8 @@ class OfxParserTest < Test::Unit::TestCase
 
     assert_equal 'XXXXXXXXXXXX1111', acct.number
     assert_equal '19000.99', acct.remaining_credit
-    assert_equal 1900099, acct.remaining_credit_in_pennies
     assert_equal DateTime.civil(2007,6,23,19,20,13), acct.remaining_credit_date
     assert_equal '-1111.01', acct.balance
-    assert_equal -111101, acct.balance_in_pennies
     assert_equal DateTime.civil(2007,6,23,19,20,13), acct.balance_date
     assert_equal '0', acct.transaction_uid
 
@@ -165,7 +158,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:DEBIT], transactions[0].type_desc
     assert_equal DateTime.civil(2007,5,10,17,0,0), transactions[0].date
     assert_equal '-19.17', transactions[0].amount
-    assert_equal -1917, transactions[0].amount_in_pennies
     assert_equal 'xx', transactions[0].fit_id
     assert_equal nil, transactions[0].check_number
     assert_equal '5912', transactions[0].sic
@@ -177,7 +169,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:DEBIT], transactions[1].type_desc
     assert_equal DateTime.civil(2007,5,12,17,0,0), transactions[1].date
     assert_equal '-12.0', transactions[1].amount
-    assert_equal -1200, transactions[1].amount_in_pennies
     assert_equal 'yy-56', transactions[1].fit_id
     assert_equal nil, transactions[1].check_number
     assert_equal '7933', transactions[1].sic
@@ -189,7 +180,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal OfxParser::Transaction::TYPE[:CREDIT], transactions[2].type_desc
     assert_equal DateTime.civil(2007,5,26,17,0,0), transactions[2].date
     assert_equal '11.01', transactions[2].amount
-    assert_equal 1101, transactions[2].amount_in_pennies
     assert_equal '78-9', transactions[2].fit_id
     assert_equal nil, transactions[2].check_number
     assert_equal '0000', transactions[2].sic
@@ -211,16 +201,6 @@ class OfxParserTest < Test::Unit::TestCase
     assert_equal 0, ofx.accounts.size
   end
 
-  def test_monetary_support_call
-    t = OfxParser::Transaction.new
-    t.amount = '-11.1'
-
-    assert_nothing_raised { t.amount_in_pennies }
-    assert_raise(NoMethodError) { t.amount_in_whatever }
-
-    assert t.respond_to?(:amount_in_pennies)
-    assert !t.respond_to?(:amount_in_whatever)
-  end
 
   def test_malformed_header_parses
     assert_nothing_raised do
@@ -228,37 +208,5 @@ class OfxParserTest < Test::Unit::TestCase
     end
   end
 
-  class X
-    include OfxParser::MonetarySupport
-    attr_accessor :amount
-    monetary_vars :amount
-  end
-
-  def test_original_method
-    x = X.new
-    assert_equal :a_b, x.original_method('a_b_in_pennies')
-    assert_equal :a, x.original_method('a_in_pennies')
-  end
-
-  def test_for_pennies
-    amounts = {
-      '-11.1' => -111,
-      '-11.110' => -1111,
-      '-11.11101' => -1111,
-      '11.11' => 1111,
-      '11,11' => 1111,
-      '1' => 100,
-      '1.0' => 100,
-      '-1.0' => -100,
-      '' => nil
-    }
-
-    x =  X.new
-
-    amounts.each do |actual, expected|
-      x.amount = actual
-      assert_equal expected, x.amount_in_pennies, "#{actual.inspect} should give #{expected.inspect}"
-    end
-  end
 
 end

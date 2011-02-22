@@ -2,6 +2,7 @@ require 'rubygems'
 require 'hpricot'
 require 'time'
 require 'date'
+require 'ruby-debug'
 
 %w(class-extension ofx mcc).each do |fn|
   require File.dirname(__FILE__) + "/#{fn}"
