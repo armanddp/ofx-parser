@@ -9,7 +9,7 @@ require 'ruby-debug'
 end
 
 module OfxParser
-  VERSION = '1.0.3'
+  VERSION = '1.0.4'
 
   class OfxParser
 
