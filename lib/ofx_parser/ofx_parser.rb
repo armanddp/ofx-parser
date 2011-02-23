@@ -5,7 +5,7 @@ require 'date'
 require 'ruby-debug'
 
 module OfxParser
-  VERSION = '1.0.4'
+  VERSION = '1.0.5'
 
   class OfxParser
 

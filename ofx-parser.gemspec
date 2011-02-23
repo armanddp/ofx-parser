@@ -6,13 +6,13 @@ Gem::Specification.new do |s|
   s.name        = "ofx_parser"
   s.version     = OfxParser::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Andrew A. Smith"]
+  s.authors     = ["Andrew A. Smith", "Armand du Plessis"]
   s.email       = ["adp@bank.io"]
   s.homepage    = "http://ofx-parser.rubyforge.org/"
-  s.summary     = %q{ofx-parser is an OFX 1.x parser written in Ruby.}
-  s.description = %q{ofx-parser is an OFX 1.x parser written in Ruby.}
+  s.summary     = %q{ofx-parser is an OFX 1.x parser written in Ruby. Forked from original ofx-parser gem to remove UK monetary support}
+  s.description = %q{ofx-parser is an OFX 1.x parser written in Ruby. Forked from original ofx-parser gem to remove UK monetary support}
 
-  s.rubyforge_project = "ofx-parser"
+  s.rubyforge_project = "ofx_parser"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

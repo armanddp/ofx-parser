@@ -1,6 +1,8 @@
 == ofx-parser
 by Andrew A. Smith
 
+This is a revised version that works on Ruby 1.9.2 with monetary support specific to the UK removed. 
+
 http://ofx-parser.rubyforge.org/
 http://rubyforge.org/projects/ofx-parser/
 
