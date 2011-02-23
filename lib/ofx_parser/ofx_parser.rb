@@ -4,7 +4,7 @@ require 'time'
 require 'date'
 
 module OfxParser
-  VERSION = '1.0.5'
+  VERSION = '1.0.6'
 
   class OfxParser
 
