@@ -1,6 +1,5 @@
 require 'test/unit'
 
-puts "LOADING " + File.dirname(File.expand_path(__FILE__)) + '/../lib/ofx_parser'
 require File.dirname(File.expand_path(__FILE__)) + '/../lib/ofx_parser.rb'
 
 class OfxParserTest < Test::Unit::TestCase

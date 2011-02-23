@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "ofx_parser"
 
 Gem::Specification.new do |s|
-  s.name        = "ofx-parser"
+  s.name        = "ofx_parser"
   s.version     = OfxParser::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Andrew A. Smith"]
